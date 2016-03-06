@@ -101,12 +101,14 @@ namespace MergeDataAndDoc
             StreamWriter writer;
             StringBuilder docBuilder;
 
-            using (writer = new StreamWriter(outputPath))
+            using (writer = new StreamWriter(outputPath, false, Encoding.Unicode))
             {
                 for(int i = 0; i < info.Length; ++i)
                 {
                     docBuilder = new StringBuilder(template);
-                    String[] data = info[i].Split('\t');
+                    if (info[i] == "")
+                        break;
+                    String[] data = info[i].Remove(info[i].Length - 1, 1).Split('\t');
                     //ignore malform data
                     if (columns.Length != data.Length) {
                         Console.WriteLine("Invalid data format: " + info[i]);
@@ -116,7 +118,7 @@ namespace MergeDataAndDoc
                     //repalce variables in template
                     for (int j = 0; j < columns.Count(); ++j)
                     {
-                        docBuilder.Replace("${}".Insert(2, columns[j]), data[i]);
+                        docBuilder.Replace("${}".Insert(2, columns[j]), data[j]);
                     }
                     writer.WriteLine(docBuilder.ToString());
                 }
