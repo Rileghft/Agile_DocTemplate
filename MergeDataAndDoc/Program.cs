@@ -12,6 +12,9 @@ namespace MergeDataAndDoc
         static private String dataSrc;
         static private String templateSrc;
         static private String outputPath;
+        static private String []columns;
+        static private String []info;
+        static private String template;
 
         static private StreamReader reader;
 
@@ -24,24 +27,11 @@ namespace MergeDataAndDoc
             Console.WriteLine("輸出路徑: " + outputPath);
             Console.WriteLine();
 
-            using (reader = new StreamReader(dataSrc))
-            {
-                String line; 
-                while((line = reader.ReadLine()) != null)
-                {
-                    Console.WriteLine(line);
-                }
-            }
-            Console.WriteLine();
+            readFile();
+            generateDoc();
 
-            using (reader = new StreamReader(templateSrc))
-            {
-                String line; 
-                while((line = reader.ReadLine()) != null)
-                {
-                    Console.WriteLine(line);
-                }
-            }
+            //open file externally
+            System.Diagnostics.Process.Start(outputPath);
         }
 
         static void processArgs(String[] args)
@@ -51,6 +41,7 @@ namespace MergeDataAndDoc
             {
                 if (state == 0)
                     if (args[i][0] == '-')
+                        //get args type
                         switch (args[i])
                         {
                             case "-i":
@@ -69,6 +60,7 @@ namespace MergeDataAndDoc
                         throw new Exception("Invalid argument format.");
                 else
                 {
+                    //get args
                     switch(state)
                     {
                         case 1:
@@ -82,6 +74,51 @@ namespace MergeDataAndDoc
                             break;
                     }
                     state = 0;
+                }
+            }
+        }
+
+        static void readFile()
+        {
+            using (reader = new StreamReader(dataSrc))
+            {
+                String line;
+                line = reader.ReadLine();
+                if (line != null)
+                    columns = line.Split('\t');
+                String data = reader.ReadToEnd();
+                info = data.Split('\n');
+            }
+
+            using (reader = new StreamReader(templateSrc))
+            {
+                template = reader.ReadToEnd();
+            }
+        }
+
+        static void generateDoc()
+        {
+            StreamWriter writer;
+            StringBuilder docBuilder;
+
+            using (writer = new StreamWriter(outputPath))
+            {
+                for(int i = 0; i < info.Length; ++i)
+                {
+                    docBuilder = new StringBuilder(template);
+                    String[] data = info[i].Split('\t');
+                    //ignore malform data
+                    if (columns.Length != data.Length) {
+                        Console.WriteLine("Invalid data format: " + info[i]);
+                        continue;
+                    }
+
+                    //repalce variables in template
+                    for (int j = 0; j < columns.Count(); ++j)
+                    {
+                        docBuilder.Replace("${}".Insert(2, columns[j]), data[i]);
+                    }
+                    writer.WriteLine(docBuilder.ToString());
                 }
             }
         }
