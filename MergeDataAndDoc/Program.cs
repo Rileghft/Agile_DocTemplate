@@ -12,32 +12,34 @@ namespace MergeDataAndDoc
         static private String dataSrc;
         static private String templateSrc;
         static private String outputPath;
+
+        static private StreamReader reader;
+
         static void Main(string[] args)
         {
-            for(int i = 0; i < args.Length; ++i)
-                Console.WriteLine(args[i]);
             processArgs(args);
             Console.WriteLine();
-            Console.WriteLine(dataSrc);
-            Console.WriteLine(templateSrc);
-            Console.WriteLine(outputPath);
-            string inputFileName = "defaultInput.txt";
-            string outputFileName = "defaultOutput.txt";
-            if (args.Length == 2)
-            {
-                inputFileName = args[0];
-                outputFileName = args[1];
-            }
+            Console.WriteLine("資料來源: " + dataSrc);
+            Console.WriteLine("樣板來源: " + templateSrc);
+            Console.WriteLine("輸出路徑: " + outputPath);
+            Console.WriteLine();
 
-            using (StreamReader inputFile = new StreamReader(inputFileName))
-            using(StreamWriter outputFile = new StreamWriter(outputFileName))
+            using (reader = new StreamReader(dataSrc))
             {
-                string line; //test
-                while((line = inputFile.ReadLine()) != null)
+                String line; 
+                while((line = reader.ReadLine()) != null)
                 {
-                    string outputLine = "***" + line;
-                    Console.WriteLine("Write line: " + outputLine);
-                    outputFile.WriteLine(outputLine);
+                    Console.WriteLine(line);
+                }
+            }
+            Console.WriteLine();
+
+            using (reader = new StreamReader(templateSrc))
+            {
+                String line; 
+                while((line = reader.ReadLine()) != null)
+                {
+                    Console.WriteLine(line);
                 }
             }
         }
