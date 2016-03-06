@@ -1,9 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
+/**
+ * @author 楊舜宇
+ * @since 2016/3/6
+ * 這個程式依照資料和樣板來產生對應文件
+ * 
+ * 參數說明:
+ *      -i  資料來源路徑
+ *      -t  樣板來源路徑
+ *      -r  輸出檔案路徑
+ *
+ * 注意事項:
+ *      1. 資料檔第一列必須包含資料欄位資訊
+ *      2. 資料檔以TAB分隔每一欄資料
+ *      3. 資料檔最後要空一列
+ *      4. 樣板以${VAR}表示欄位變數
+ *
+ * 測試檔案:
+ *      資料檔: data.txt
+ *      樣板檔: template.txt
+ *
+ * 預設輸出路徑: ./result.txt
+ *
+ */
 
 namespace MergeDataAndDoc
 {
@@ -20,6 +42,7 @@ namespace MergeDataAndDoc
 
         static void Main(string[] args)
         {
+            outputPath = "result.txt";
             processArgs(args);
             readFile();
             generateDoc();
