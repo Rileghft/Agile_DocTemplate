@@ -21,12 +21,6 @@ namespace MergeDataAndDoc
         static void Main(string[] args)
         {
             processArgs(args);
-            Console.WriteLine();
-            Console.WriteLine("資料來源: " + dataSrc);
-            Console.WriteLine("樣板來源: " + templateSrc);
-            Console.WriteLine("輸出路徑: " + outputPath);
-            Console.WriteLine();
-
             readFile();
             generateDoc();
 
