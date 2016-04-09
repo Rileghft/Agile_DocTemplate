@@ -54,7 +54,7 @@ namespace MergeDataAndDoc
             System.Diagnostics.Process.Start(outputPath);
         }
 
-        private static void GenDoc(TextReader DataReader, TextReader TemplateReader, TextWriter writer)
+        public static void GenDoc(TextReader DataReader, TextReader TemplateReader, TextWriter writer)
         {
 
             //Read Data
