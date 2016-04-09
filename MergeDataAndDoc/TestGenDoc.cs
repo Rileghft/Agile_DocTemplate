@@ -23,5 +23,21 @@ namespace MergeDataAndDoc
 ";
             Assert.That(sBuilder.ToString(), Is.EqualTo(result));
         }
+
+        [Test]
+        public void testGenDocIncompleteData()
+        {
+            StringReader dataSr = new StringReader("姓名\t費用\r\n小明\t100\r\n小花\t\r\n");
+            StringReader templateSr = new StringReader(@"學生 ${姓名} 費用 ${費用}");
+            StringBuilder sBuilder = new StringBuilder();
+            StringWriter docWr = new StringWriter(sBuilder);
+
+            Program.GenDoc(dataSr, templateSr, docWr);
+
+            String result = @"學生 小明 費用 100
+學生 小花 費用 
+";
+            Assert.That(sBuilder.ToString(), Is.EqualTo(result));
+        }
     }
 }
