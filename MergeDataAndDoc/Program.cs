@@ -32,27 +32,69 @@ namespace MergeDataAndDoc
 {
     class Program
     {
-        static private String dataSrc;
-        static private String templateSrc;
-        static private String outputPath;
-        static private String []columns;
-        static private String []info;
-        static private String template;
 
-        static private StreamReader reader;
 
         static void Main(string[] args)
         {
+            String dataSrc = "";
+        	String templateSrc = "";
+        	String outputPath = "";
+        	StreamReader DataReader;
+        	StreamReader TemplateReader;
             outputPath = "result.txt";
-            processArgs(args);
-            readFile();
-            generateDoc();
+
+            processArgs(ref args, ref dataSrc, ref templateSrc, ref outputPath);
+
+            using (DataReader = new StreamReader(dataSrc))
+            using (TemplateReader = new StreamReader(templateSrc))
+            using (StreamWriter writer = new StreamWriter(outputPath, false, Encoding.Unicode))
+                GenDoc(DataReader, TemplateReader, writer);
 
             //open file externally
             System.Diagnostics.Process.Start(outputPath);
         }
 
-        static void processArgs(String[] args)
+        private static void GenDoc(TextReader DataReader, TextReader TemplateReader, TextWriter writer)
+        {
+
+            //Read Data
+            String[] columns = null;
+            String[] info = null;
+            String template = "";
+            //Title
+            String line = DataReader.ReadLine();
+            if (line != null)
+                columns = line.Split('\t');
+            //Data
+            String data = DataReader.ReadToEnd();
+            info = data.Split('\n');
+            //Read Template
+            template = TemplateReader.ReadToEnd();
+            //Generate Document
+            StringBuilder docBuilder;
+            for (int i = 0; i < info.Length; ++i)
+            {
+                docBuilder = new StringBuilder(template);
+                if (info[i] == "")
+                    break;
+                String[] dataCol = info[i].Remove(info[i].Length - 1, 1).Split('\t');
+                //ignore malform data
+                if (columns.Length != dataCol.Length)
+                {
+                    Console.WriteLine("Invalid data format: " + info[i]);
+                    continue;
+                }
+
+                //repalce variables in template
+                for (int j = 0; j < columns.Count(); ++j)
+                {
+                    docBuilder.Replace("${}".Insert(2, columns[j]), dataCol[j]);
+                }
+                writer.WriteLine(docBuilder.ToString());
+            }
+        }
+
+        static void processArgs(ref String[] args, ref String dataSrc, ref String templateSrc, ref String outputPath)
         {
             int state = 0; //1 dataSrc, 2 templateSrc, 3 outputPath
             for (int i = 0; i < args.Length; ++i)
@@ -96,51 +138,5 @@ namespace MergeDataAndDoc
             }
         }
 
-        static void readFile()
-        {
-            using (reader = new StreamReader(dataSrc))
-            {
-                String line;
-                line = reader.ReadLine();
-                if (line != null)
-                    columns = line.Split('\t');
-                String data = reader.ReadToEnd();
-                info = data.Split('\n');
-            }
-
-            using (reader = new StreamReader(templateSrc))
-            {
-                template = reader.ReadToEnd();
-            }
-        }
-
-        static void generateDoc()
-        {
-            StreamWriter writer;
-            StringBuilder docBuilder;
-
-            using (writer = new StreamWriter(outputPath, false, Encoding.Unicode))
-            {
-                for(int i = 0; i < info.Length; ++i)
-                {
-                    docBuilder = new StringBuilder(template);
-                    if (info[i] == "")
-                        break;
-                    String[] data = info[i].Remove(info[i].Length - 1, 1).Split('\t');
-                    //ignore malform data
-                    if (columns.Length != data.Length) {
-                        Console.WriteLine("Invalid data format: " + info[i]);
-                        continue;
-                    }
-
-                    //repalce variables in template
-                    for (int j = 0; j < columns.Count(); ++j)
-                    {
-                        docBuilder.Replace("${}".Insert(2, columns[j]), data[j]);
-                    }
-                    writer.WriteLine(docBuilder.ToString());
-                }
-            }
-        }
     }
 }
